@@ -1,8 +1,8 @@
 #include "dining.h"
 
 #include <pthread.h>
-#include <stdlib.h>
 #include <semaphore.h>
+#include <stdlib.h>
 
 void up(int *sem) { (*sem)++; }
 
@@ -26,7 +26,7 @@ typedef struct dining {
   // lock on dining door when cleaning is present
   // 0 is unlocked
   // 1 is locked
-  pthread_mutex_t* lock;
+  pthread_mutex_t *lock;
 } dining_t;
 
 dining_t *dining_init(int capacity) {
