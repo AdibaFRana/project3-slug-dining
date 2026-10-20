@@ -2,7 +2,6 @@
 
 #include <pthread.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 void up(int *sem) { (*sem)++; }
 
