@@ -2,6 +2,7 @@
 
 #include <pthread.h>
 #include <stdlib.h>
+#include <semaphore.h>
 
 void up(int *sem) { (*sem)++; }
 
@@ -12,14 +13,9 @@ void down(int *sem) {
   (*sem) -= 1;
 }
 
-void lock(int *x) { (*x) = 1; }
-
-void unlock(int *x) { (*x) = 0; }
-
-void check_lock(int *x) {
-  while ((*x) == 1) {
-    // busy wait
-  }
+void check_lock(pthread_mutex_t *x) {
+  pthread_mutex_lock(x);
+  pthread_mutex_unlock(x);
 }
 
 typedef struct dining {
@@ -30,7 +26,7 @@ typedef struct dining {
   // lock on dining door when cleaning is present
   // 0 is unlocked
   // 1 is locked
-  int lock;
+  pthread_mutex_t* lock;
 } dining_t;
 
 dining_t *dining_init(int capacity) {
@@ -40,21 +36,24 @@ dining_t *dining_init(int capacity) {
   // initialize empty_seats
   dining->empty_seats = capacity;
   // initialize lock
-  dining->lock = 0;
+  dining->lock = calloc(1, sizeof(pthread_mutex_t));
+  pthread_mutex_init(dining->lock, NULL);
   return dining;
 }
 void dining_destroy(dining_t **dining) {
   // TODO: Free dynamically allocated memory
+  // no need to free empty_seats
+  // free lock
+  pthread_mutex_destroy((*dining)->lock);
+  free((*dining)->lock);
   free(*dining);
   *dining = NULL;
-  // no need to free empty_seats
-  // no need to free lock
 }
 
 void dining_student_enter(dining_t *dining) {
   // TODO: Your code goes here
   // decrease empty seats
-  check_lock(&(dining->lock));
+  check_lock(dining->lock);
   down(&(dining->empty_seats));
 }
 
@@ -67,7 +66,7 @@ void dining_student_leave(dining_t *dining) {
 void dining_cleaning_enter(dining_t *dining) {
   // TODO: Your code goes here
   // stop students from entering
-  lock(&(dining->lock));
+  pthread_mutex_lock(dining->lock);
   // wait until hall empty
   while (dining->empty_seats != dining->capacity) {
     // busy wait
@@ -77,5 +76,5 @@ void dining_cleaning_enter(dining_t *dining) {
 void dining_cleaning_leave(dining_t *dining) {
   // TODO: Your code goes here
   // unlock door
-  unlock(&(dining->lock));
+  pthread_mutex_unlock(dining->lock);
 }
