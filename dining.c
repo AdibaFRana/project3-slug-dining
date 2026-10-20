@@ -2,6 +2,7 @@
 
 #include <pthread.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 void up(int *sem) { (*sem)++; }
 
@@ -9,7 +10,7 @@ void down(int *sem) {
   while ((*sem) <= 0) {
     //  busy wait
   }
-  sem--;
+  (*sem) -= 1;
 }
 
 void lock(int *x) { (*x) = 1; }
