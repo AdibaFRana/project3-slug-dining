@@ -13,6 +13,12 @@ void down(int *sem) {
   (*sem) -= 1;
 }
 
+void try_clean(int *cap, int *curr) {
+  while ((*curr) != (*cap)) {
+    // busy wait
+  }
+}
+
 void check_lock(pthread_mutex_t *x) {
   pthread_mutex_lock(x);
   pthread_mutex_unlock(x);
@@ -68,9 +74,7 @@ void dining_cleaning_enter(dining_t *dining) {
   // stop students from entering
   pthread_mutex_lock(dining->lock);
   // wait until hall empty
-  while (dining->empty_seats != dining->capacity) {
-    // busy wait
-  }
+  try_clean(&(dining->capacity), &(dining->empty_seats));
 }
 
 void dining_cleaning_leave(dining_t *dining) {
